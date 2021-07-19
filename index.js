@@ -16,9 +16,12 @@ var pngOptimizeAsync = require('./lib/pngOptimizeAsync');
 
 var urlLoader = require('url-loader');
 
-function rewriteJSON (content, imagePathStr, mode, resource) {
+function rewriteJSON(content, imagePathStr, mode, resource) {
   var sheetConfig = JSON.parse(content);
-  var imagePath = /"([^"]+)"/.exec(imagePathStr)[1];
+  var regex = new RegExp(`"[\\w\\/]*?(${sheetConfig.meta.image.slice(0, -4)}_\\w{6}\\.png)"`)
+
+  var imagePath = regex.exec(imagePathStr)[1]
+
   sheetConfig.meta.image = imagePath;
 
   if (resource) {
@@ -35,7 +38,7 @@ function rewriteJSON (content, imagePathStr, mode, resource) {
   return JSON.stringify(sheetConfig);
 }
 
-function buildFiles (context, options, name, callback) {
+function buildFiles(context, options, name, callback) {
   var imageOptions = {};
 
   for (var key in options) {
@@ -51,8 +54,9 @@ function buildFiles (context, options, name, callback) {
     query: Object.assign({}, imageOptions, options.image)
   });
 
+
   imagePathStr = urlLoader.call(imageContext, imageContent);
-  afterImage(imagePathStr, function(rs) {
+  afterImage(imagePathStr, function (rs) {
     callback(rs);
   });
 

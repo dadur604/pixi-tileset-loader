@@ -18,7 +18,7 @@ var urlLoader = require('url-loader');
 
 function rewriteJSON(content, imagePathStr, mode, resource) {
   var sheetConfig = JSON.parse(content);
-  var regex = new RegExp(`"[\\w\\/]*?(${sheetConfig.meta.image.slice(0, -4)}_\\w{6}\\.png)"`)
+  var regex = new RegExp(`"[\\w\\/]*?(${sheetConfig.meta.image.slice(0, -5)}_\\w{6}\\.webp)"`)
 
   var imagePath = regex.exec(imagePathStr)[1]
 
@@ -29,7 +29,7 @@ function rewriteJSON(content, imagePathStr, mode, resource) {
   }
 
   if (mode === 'inline') {
-    sheetConfig.meta.json = `${path.basename(imagePath, '.png')}.json`;
+    sheetConfig.meta.json = `${path.basename(imagePath, '.webp')}.json`;
     if (resource) {
       sheetConfig.meta.json = `$$${resource.replace('$url', sheetConfig.meta.json)}$$`;
     }
@@ -47,7 +47,7 @@ function buildFiles(context, options, name, callback) {
 
   // build image
   var imagePathStr;
-  var imageFullPath = path.resolve(options.output, `${name}.png`);
+  var imageFullPath = path.resolve(options.output, `${name}.webp`);
   var imageContent = fs.readFileSync(imageFullPath);
   var imageContext = Object.assign({}, context, {
     resourcePath: imageFullPath,
@@ -162,7 +162,7 @@ module.exports = function (content) {
           .then(function (sourcePath) {
             var destPath = path.resolve(path.join(options.output, framesPacker.output));
             return Promise.all([
-              pngOptimizeAsync(`${sourcePath}.png`, `${destPath}.png`, framesPacker.config.colors),
+              pngOptimizeAsync(`${sourcePath}.png`, `${destPath}.webp`, framesPacker.config.colors),
               fse.copy(`${sourcePath}.json`, `${destPath}.json`)
             ]);
           });
